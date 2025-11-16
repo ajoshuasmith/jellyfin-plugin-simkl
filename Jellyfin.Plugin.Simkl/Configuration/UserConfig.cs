@@ -19,6 +19,7 @@ namespace Jellyfin.Plugin.Simkl.Configuration
             MinLength = 5;
             UserToken = string.Empty; // Todo: check if token is still valid
             ScrobbleTimeout = 30;
+            SyncFromSimkl = false;
         }
 
         /// <summary>
@@ -66,5 +67,35 @@ namespace Jellyfin.Plugin.Simkl.Configuration
         /// Gets or sets user id.
         /// </summary>
         public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether watched-state import is enabled.
+        /// </summary>
+        public bool SyncFromSimkl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last /sync/activities timestamp.
+        /// </summary>
+        public DateTime? LastActivitiesAll { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last movie activity timestamp.
+        /// </summary>
+        public DateTime? LastActivitiesMovies { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last show activity timestamp.
+        /// </summary>
+        public DateTime? LastActivitiesShows { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last anime activity timestamp.
+        /// </summary>
+        public DateTime? LastActivitiesAnime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last time an import completed.
+        /// </summary>
+        public DateTime? LastImportUtc { get; set; }
     }
 }

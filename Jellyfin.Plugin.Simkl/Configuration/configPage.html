@@ -41,6 +41,23 @@
                         <button onclick="SimklConfig.startFullSync();" is="emby-button" type="button" class="raised button-submit block"><span>Start Full Sync</span></button>
                         <div id="syncStatus" style="margin-top: 10px;"></div>
                     </div>
+                    <div id="importContainer" style="margin-top: 2em;">
+                        <h2>Restore watched state from Simkl</h2>
+                        <p class="fieldDescription">Use this to backfill Jellyfin watched status from Simkl after a library rebuild.</p>
+                        <div class="checkboxcontainer">
+                            <label>
+                                <input is="emby-checkbox" type="checkbox" id="SyncFromSimkl" />
+                                <span>Enable scheduled Simkl → Jellyfin sync</span>
+                            </label>
+                        </div>
+                        <button onclick="SimklConfig.startImport(false);" is="emby-button" type="button" class="raised button-submit block">
+                            <span>Run Import Now</span>
+                        </button>
+                        <button onclick="SimklConfig.startImport(true);" is="emby-button" type="button" class="raised block">
+                            <span>Dry Run (log only)</span>
+                        </button>
+                        <div id="importStatus" style="margin-top: 10px;"></div>
+                    </div>
                     <h2 style="margin-top: 2em;">Scrobbling options:</h2>
                     <div class="checkboxcontainer">
                         <label>
@@ -253,6 +270,33 @@
                         } else {
                             statusDiv.innerText = "Error starting the sync process.";
                             console.error("Sync failed to start", result);
+                        }
+                    })
+                    .catch(function (error) {
+                        statusDiv.innerText = "An error occurred. See browser log for details.";
+                        console.error(error);
+                    });
+            },
+            startImport: function (dryRun) {
+                const uguid = SimklConfig.userSelector.value;
+                const statusDiv = document.querySelector('#importStatus');
+                statusDiv.innerText = dryRun ? "Dry-run import initiated..." : "Import initiated...";
+
+                const query = dryRun ? '?dryRun=true' : '';
+                const request = {
+                    url: window.ApiClient.getUrl('Simkl/sync/import/' + uguid + query),
+                    type: 'POST'
+                };
+
+                window.ApiClient.fetch(request)
+                    .then(function (result) {
+                        if (result.status === 200 || result.status === 204) {
+                            statusDiv.innerText = dryRun
+                                ? "Dry-run import started. Check Jellyfin logs for details."
+                                : "Import started. Progress will continue in the background.";
+                        } else {
+                            statusDiv.innerText = "Error starting the import process.";
+                            console.error("Import failed to start", result);
                         }
                     })
                     .catch(function (error) {

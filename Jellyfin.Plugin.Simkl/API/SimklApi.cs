@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -11,6 +12,7 @@ using Jellyfin.Data.Enums;
 using Jellyfin.Extensions.Json;
 using Jellyfin.Plugin.Simkl.API.Exceptions;
 using Jellyfin.Plugin.Simkl.API.Objects;
+using Jellyfin.Plugin.Simkl.API.Requests;
 using Jellyfin.Plugin.Simkl.API.Responses;
 using Jellyfin.Plugin.Simkl.Configuration;
 using MediaBrowser.Common.Net;
@@ -18,6 +20,7 @@ using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Querying;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.Simkl.API
@@ -107,6 +110,33 @@ namespace Jellyfin.Plugin.Simkl.API
         }
 
         /// <summary>
+        /// Gets last activities timestamps for incremental sync.
+        /// </summary>
+        /// <param name="userToken">The Simkl user token.</param>
+        /// <returns>A <see cref="SimklActivities"/> payload describing last activity dates.</returns>
+        public Task<SimklActivities?> GetActivitiesAsync(string userToken)
+        {
+            return Post<SimklActivities, object>("/sync/activities", userToken);
+        }
+
+        /// <summary>
+        /// Gets watchlist data for the specified media scope.
+        /// </summary>
+        /// <param name="userToken">The Simkl user token.</param>
+        /// <param name="request">Request options describing the desired scope.</param>
+        /// <returns>A <see cref="SimklAllItemsResponse"/> describing the user's watchlists.</returns>
+        public Task<SimklAllItemsResponse?> GetAllItemsAsync(string userToken, SimklAllItemsRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            var path = BuildAllItemsPath(request);
+            return Get<SimklAllItemsResponse>(path, userToken);
+        }
+
+        /// <summary>
         /// Mark an item as watched on Simkl.
         /// </summary>
         /// <param name="item">The item to mark as watched.</param>
@@ -140,6 +170,44 @@ namespace Jellyfin.Plugin.Simkl.API
             return r == null
                 ? (false, item)
                 : (history.Movies.Count == r.Added.Movies && history.Shows.Count == r.Added.Shows, item);
+        }
+
+        private static string BuildAllItemsPath(SimklAllItemsRequest request)
+        {
+            var segments = new List<string> { "sync", "all-items" };
+            if (!string.IsNullOrEmpty(request.Type))
+            {
+                segments.Add(request.Type);
+                if (!string.IsNullOrEmpty(request.Status))
+                {
+                    segments.Add(request.Status);
+                }
+            }
+
+            var path = "/" + string.Join('/', segments);
+            var query = new Dictionary<string, string?>();
+
+            if (!string.IsNullOrEmpty(request.DateFrom))
+            {
+                query["date_from"] = request.DateFrom;
+            }
+
+            if (!string.IsNullOrEmpty(request.Extended))
+            {
+                query["extended"] = request.Extended;
+            }
+
+            if (request.IncludeEpisodeWatchedAt)
+            {
+                query["episode_watched_at"] = "yes";
+            }
+
+            if (request.IncludeMemos)
+            {
+                query["memos"] = "yes";
+            }
+
+            return query.Count > 0 ? QueryHelpers.AddQueryString(path, query) : path;
         }
 
         /// <summary>

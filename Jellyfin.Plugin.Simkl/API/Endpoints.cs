@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Plugin.Simkl.API.Objects;
 using Jellyfin.Plugin.Simkl.API.Responses;
+using Jellyfin.Plugin.Simkl.Services;
 using MediaBrowser.Controller.Library; // CORRECTED: This namespace is needed for both ILibraryManager and IUserManager
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +22,7 @@ namespace Jellyfin.Plugin.Simkl.API
         private readonly SimklApi _simklApi;
         private readonly ILibraryManager _libraryManager;
         private readonly IUserManager _userManager;
+        private readonly SimklImportService _importService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Endpoints"/> class.
@@ -27,11 +30,13 @@ namespace Jellyfin.Plugin.Simkl.API
         /// <param name="simklApi">Instance of the <see cref="SimklApi"/>.</param>
         /// <param name="libraryManager">Instance of the <see cref="ILibraryManager"/> interface.</param>
         /// <param name="userManager">Instance of the <see cref="IUserManager"/> interface.</param>
-        public Endpoints(SimklApi simklApi, ILibraryManager libraryManager, IUserManager userManager)
+        /// <param name="importService">Background service used to backfill Simkl data into Jellyfin.</param>
+        public Endpoints(SimklApi simklApi, ILibraryManager libraryManager, IUserManager userManager, SimklImportService importService)
         {
             _simklApi = simklApi;
             _libraryManager = libraryManager;
             _userManager = userManager;
+            _importService = importService;
         }
 
         /// <summary>
@@ -94,5 +99,22 @@ namespace Jellyfin.Plugin.Simkl.API
 
             return NoContent(); // 204 is a good response for a "fire and forget" action
         }
+
+#pragma warning disable SA1611, SA1615, CS1591
+        [HttpPost("sync/import/{userId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult StartImport([FromRoute] Guid userId, [FromQuery] bool dryRun = false)
+        {
+            var userConfig = SimklPlugin.Instance?.Configuration.GetByGuid(userId);
+            if (userConfig == null || string.IsNullOrEmpty(userConfig.UserToken))
+            {
+                return Unauthorized("User not configured for Simkl.");
+            }
+
+            Task.Run(() => _importService.ImportUserAsync(userId, dryRun, CancellationToken.None));
+            return NoContent();
+        }
+#pragma warning restore SA1611, SA1615, CS1591
     }
 }

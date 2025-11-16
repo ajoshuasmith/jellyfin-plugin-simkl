@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Jellyfin.Plugin.Simkl.API.Objects
 {
@@ -12,6 +13,11 @@ namespace Jellyfin.Plugin.Simkl.API.Objects
         /// </summary>
         [JsonPropertyName("number")]
         public int? Number { get; set; }
-        // TODO: watched_at
+
+        /// <summary>
+        /// Gets or sets last watched timestamp.
+        /// </summary>
+        [JsonPropertyName("watched_at")]
+        public DateTime? WatchedAt { get; set; }
     }
 }
