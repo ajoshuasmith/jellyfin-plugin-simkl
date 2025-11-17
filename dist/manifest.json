@@ -13,8 +13,8 @@
                 "changelog": "Adds manual full sync, Simkl→Jellyfin watched import, dry-run logging, and repo manifest.",
                 "targetAbi": "10.9.0.0",
                 "sourceUrl": "https://raw.githubusercontent.com/ajoshuasmith/jellyfin-plugin-simkl/master/dist/jellyfin-plugin-simkl.zip",
-                "checksum": "39a278935d069bf13204fb6fc7dcc2061e39a19d33ee388a736e98908ad3ef91",
-                "timestamp": "2025-11-16T00:00:00Z"
+                "checksum": "7cccc1875803ea7014539d3f5092559e",
+                "timestamp": "2025-11-16T18:00:00Z"
             }
         ]
     }
