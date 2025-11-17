@@ -9,7 +9,7 @@
         "imageUrl": "https://raw.githubusercontent.com/ajoshuasmith/jellyfin-plugin-simkl/master/Jellyfin.Plugin.Simkl/favicon.ico",
         "versions": [
             {
-                "version": "7.1.0.0",
+                "version": "7.1.0.1",
                 "changelog": "Adds manual full sync, Simkl→Jellyfin watched import, dry-run logging, and repo manifest.",
                 "targetAbi": "10.9.0.0",
                 "sourceUrl": "https://raw.githubusercontent.com/ajoshuasmith/jellyfin-plugin-simkl/master/dist/jellyfin-plugin-simkl.zip",
