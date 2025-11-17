@@ -43,7 +43,7 @@ namespace Jellyfin.Plugin.Simkl
         {
             yield return new PluginPageInfo
             {
-                Name = Name,
+                Name = "simkl",
                 EmbeddedResourcePath = GetType().Namespace + ".Configuration.configPage.html"
             };
         }

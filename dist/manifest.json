@@ -9,12 +9,12 @@
         "imageUrl": "https://raw.githubusercontent.com/ajoshuasmith/jellyfin-plugin-simkl/master/Jellyfin.Plugin.Simkl/favicon.ico",
         "versions": [
             {
-                "version": "7.1.0.1",
+                "version": "7.1.0.0",
                 "changelog": "Adds manual full sync, Simkl→Jellyfin watched import, dry-run logging, and repo manifest.",
                 "targetAbi": "10.9.0.0",
                 "sourceUrl": "https://raw.githubusercontent.com/ajoshuasmith/jellyfin-plugin-simkl/master/dist/jellyfin-plugin-simkl.zip",
-                "checksum": "7cccc1875803ea7014539d3f5092559e",
-                "timestamp": "2025-11-16T18:00:00Z"
+                "checksum": "9c70838262e074d536c0504c44b11e59",
+                "timestamp": "2025-11-16T19:00:00Z"
             }
         ]
     }
